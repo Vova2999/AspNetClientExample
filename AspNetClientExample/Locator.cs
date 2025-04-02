@@ -1,4 +1,5 @@
-﻿using AspNetClientExample.Api.Clients.Departments;
+﻿using AspNetClientExample.Api.Clients.Account;
+using AspNetClientExample.Api.Clients.Departments;
 using AspNetClientExample.Api.Clients.Diseases;
 using AspNetClientExample.Api.Clients.DoctorExaminations;
 using AspNetClientExample.Api.Clients.Doctors;
@@ -26,24 +27,26 @@ public class Locator : ILocatorService
 
 	private static void RegisterDependencies(IExportRegistrationBlock registration)
 	{
+		RegisterSingleton<IAccountClient, AccountClient>(registration,
+			_ => new AccountClient(Constants.ServerAddress, Constants.RequestTimeout));
 		RegisterSingleton<IDepartmentsClient, DepartmentsClient>(registration,
-			_ => new DepartmentsClient(Constants.ServerAddress));
+			_ => new DepartmentsClient(Constants.ServerAddress, Constants.RequestTimeout));
 		RegisterSingleton<IDiseasesClient, DiseasesClient>(registration,
-			_ => new DiseasesClient(Constants.ServerAddress));
+			_ => new DiseasesClient(Constants.ServerAddress, Constants.RequestTimeout));
 		RegisterSingleton<IDoctorExaminationsClient, DoctorExaminationsClient>(registration,
-			_ => new DoctorExaminationsClient(Constants.ServerAddress));
+			_ => new DoctorExaminationsClient(Constants.ServerAddress, Constants.RequestTimeout));
 		RegisterSingleton<IDoctorsClient, DoctorsClient>(registration,
-			_ => new DoctorsClient(Constants.ServerAddress));
+			_ => new DoctorsClient(Constants.ServerAddress, Constants.RequestTimeout));
 		RegisterSingleton<IExaminationsClient, ExaminationsClient>(registration,
-			_ => new ExaminationsClient(Constants.ServerAddress));
+			_ => new ExaminationsClient(Constants.ServerAddress, Constants.RequestTimeout));
 		RegisterSingleton<IInternsClient, InternsClient>(registration,
-			_ => new InternsClient(Constants.ServerAddress));
+			_ => new InternsClient(Constants.ServerAddress, Constants.RequestTimeout));
 		RegisterSingleton<IProfessorsClient, ProfessorsClient>(registration,
-			_ => new ProfessorsClient(Constants.ServerAddress));
+			_ => new ProfessorsClient(Constants.ServerAddress, Constants.RequestTimeout));
 		RegisterSingleton<IWardsClient, WardsClient>(registration,
-			_ => new WardsClient(Constants.ServerAddress));
+			_ => new WardsClient(Constants.ServerAddress, Constants.RequestTimeout));
 		RegisterSingleton<IPingClient, PingClient>(registration,
-			_ => new PingClient(Constants.ServerAddress));
+			_ => new PingClient(Constants.ServerAddress, Constants.RequestTimeout));
 	}
 
 	private static void RegisterSingleton<TFrom, TTo>(IExportRegistrationBlock registrationBlock) where TTo : TFrom

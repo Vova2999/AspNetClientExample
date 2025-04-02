@@ -2,5 +2,5 @@
 
 public interface IPingClient
 {
-	Task Ping();
+    Task Ping(CancellationToken cancellationToken = default);
 }
