@@ -7,27 +7,22 @@ public interface IWardsClient
 {
     Task<WardDto> GetAsync(
         int id,
-        string? token = default,
         CancellationToken cancellationToken = default);
 
     Task<WardDto[]> GetAsync(
         GetWardsRequest? request = null,
-        string? token = default,
         CancellationToken cancellationToken = default);
 
     Task<WardDto> CreateAsync(
         WardDto ward,
-        string? token = default,
         CancellationToken cancellationToken = default);
 
     Task<WardDto> UpdateAsync(
         int id,
         WardDto ward,
-        string? token = default,
         CancellationToken cancellationToken = default);
 
     Task DeleteAsync(
         int id,
-        string? token = default,
         CancellationToken cancellationToken = default);
 }

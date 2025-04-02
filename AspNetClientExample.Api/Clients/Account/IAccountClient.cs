@@ -13,9 +13,11 @@ public interface IAccountClient
         CancellationToken cancellationToken = default);
 
     Task<TokenDto> RefreshTokenAsync(
+        string token,
         CancellationToken cancellationToken = default);
 
     Task ChangePasswordAsync(
+        string token,
         ChangePasswordDto changePassword,
         CancellationToken cancellationToken = default);
 }

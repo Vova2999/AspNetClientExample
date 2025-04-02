@@ -1,5 +1,6 @@
 ﻿using AspNetClientExample.Api.Clients.DoctorExaminations.Requests;
 using AspNetClientExample.Api.Extensions;
+using AspNetClientExample.Api.Token;
 using AspNetClientExample.Domain.Dtos;
 using RestSharp;
 
@@ -7,79 +8,82 @@ namespace AspNetClientExample.Api.Clients.DoctorExaminations;
 
 public class DoctorExaminationsClient : HttpClientBase, IDoctorExaminationsClient
 {
-    public DoctorExaminationsClient(string address, TimeSpan timeout)
+    private readonly ITokenProvider _tokenProvider;
+
+    public DoctorExaminationsClient(ITokenProvider tokenProvider, string address, TimeSpan timeout)
         : base(address, timeout)
     {
+        _tokenProvider = tokenProvider;
     }
 
-    public Task<DoctorExaminationDto> GetAsync(
+    public async Task<DoctorExaminationDto> GetAsync(
         int id,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<DoctorExaminationDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<DoctorExaminationDto>(
             Method.Get,
-            $"/doctorExaminations/{id}",
+            $"api/doctorExaminations/{id}",
             token,
             cancellationToken);
     }
 
-    public Task<DoctorExaminationDto[]> GetAsync(
+    public async Task<DoctorExaminationDto[]> GetAsync(
         GetDoctorExaminationsRequest? request = null,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<DoctorExaminationDto[]>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<DoctorExaminationDto[]>(
             Method.Get,
-            "/doctorExaminations",
+            "api/doctorExaminations",
             token,
             restRequest => restRequest
                 .AddQueryParameterIfNotNull("dateFrom", request?.DateFrom)
                 .AddQueryParameterIfNotNull("dateTo", request?.DateTo)
-                .AddQueryParametersIfNotNull("diseaseName", request?.DiseaseNames)
-                .AddQueryParametersIfNotNull("doctorName", request?.DoctorNames)
-                .AddQueryParametersIfNotNull("examinationName", request?.ExaminationNames)
-                .AddQueryParametersIfNotNull("wardName", request?.WardNames),
+                .AddQueryParametersIfNotNull("diseaseNames", request?.DiseaseNames)
+                .AddQueryParametersIfNotNull("doctorNames", request?.DoctorNames)
+                .AddQueryParametersIfNotNull("examinationNames", request?.ExaminationNames)
+                .AddQueryParametersIfNotNull("wardNames", request?.WardNames),
             cancellationToken);
     }
 
-    public Task<DoctorExaminationDto> CreateAsync(
+    public async Task<DoctorExaminationDto> CreateAsync(
         DoctorExaminationDto doctorExamination,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<DoctorExaminationDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<DoctorExaminationDto>(
             Method.Post,
-            "/doctorExaminations",
+            "api/doctorExaminations",
             token,
             restRequest => restRequest
                 .AddBody(doctorExamination),
             cancellationToken);
     }
 
-    public Task<DoctorExaminationDto> UpdateAsync(
+    public async Task<DoctorExaminationDto> UpdateAsync(
         int id,
         DoctorExaminationDto doctorExamination,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<DoctorExaminationDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<DoctorExaminationDto>(
             Method.Put,
-            $"/doctorExaminations/{id}",
+            $"api/doctorExaminations/{id}",
             token,
             restRequest => restRequest
                 .AddBody(doctorExamination),
             cancellationToken);
     }
 
-    public Task DeleteAsync(
+    public async Task DeleteAsync(
         int id,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync(
+        var token = await _tokenProvider.GetTokenAsync();
+        await SendRequestAsync(
             Method.Delete,
-            $"/doctorExaminations/{id}",
+            $"api/doctorExaminations/{id}",
             token,
             cancellationToken);
     }

@@ -13,7 +13,7 @@ public class PingClient : HttpClientBase, IPingClient
     {
         return SendRequestAsync(
             Method.Get,
-            "/ping",
+            "api/ping",
             cancellationToken);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AspNetClientExample.Api.Clients.Interns.Requests;
 using AspNetClientExample.Api.Extensions;
+using AspNetClientExample.Api.Token;
 using AspNetClientExample.Domain.Dtos;
 using RestSharp;
 
@@ -7,74 +8,77 @@ namespace AspNetClientExample.Api.Clients.Interns;
 
 public class InternsClient : HttpClientBase, IInternsClient
 {
-    public InternsClient(string address, TimeSpan timeout)
+    private readonly ITokenProvider _tokenProvider;
+
+    public InternsClient(ITokenProvider tokenProvider, string address, TimeSpan timeout)
         : base(address, timeout)
     {
+        _tokenProvider = tokenProvider;
     }
 
-    public Task<InternDto> GetAsync(
+    public async Task<InternDto> GetAsync(
         int id,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<InternDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<InternDto>(
             Method.Get,
-            $"/interns/{id}",
+            $"api/interns/{id}",
             token,
             cancellationToken);
     }
 
-    public Task<InternDto[]> GetAsync(
+    public async Task<InternDto[]> GetAsync(
         GetInternsRequest? request = null,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<InternDto[]>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<InternDto[]>(
             Method.Get,
-            "/interns",
+            "api/interns",
             token,
             restRequest => restRequest
-                .AddQueryParametersIfNotNull("doctorName", request?.DoctorNames),
+                .AddQueryParametersIfNotNull("doctorNames", request?.DoctorNames),
             cancellationToken);
     }
 
-    public Task<InternDto> CreateAsync(
+    public async Task<InternDto> CreateAsync(
         InternDto intern,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<InternDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<InternDto>(
             Method.Post,
-            "/interns",
+            "api/interns",
             token,
             restRequest => restRequest
                 .AddBody(intern),
             cancellationToken);
     }
 
-    public Task<InternDto> UpdateAsync(
+    public async Task<InternDto> UpdateAsync(
         int id,
         InternDto intern,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<InternDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<InternDto>(
             Method.Put,
-            $"/interns/{id}",
+            $"api/interns/{id}",
             token,
             restRequest => restRequest
                 .AddBody(intern),
             cancellationToken);
     }
 
-    public Task DeleteAsync(
+    public async Task DeleteAsync(
         int id,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync(
+        var token = await _tokenProvider.GetTokenAsync();
+        await SendRequestAsync(
             Method.Delete,
-            $"/interns/{id}",
+            $"api/interns/{id}",
             token,
             cancellationToken);
     }

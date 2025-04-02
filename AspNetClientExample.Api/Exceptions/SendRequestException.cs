@@ -13,8 +13,9 @@ public class SendRequestException : Exception
         Uri? uri,
         string? content,
         HttpStatusCode statusCode,
-        ILookup<string?, string?> headers)
-        : base($"Send request failed. Url: {uri}, StatusCode: {statusCode}")
+        ILookup<string?, string?> headers,
+        Exception? innerException)
+        : base($"Send request failed. Url: {uri}, StatusCode: {statusCode}", innerException)
     {
         Uri = uri;
         Content = content;

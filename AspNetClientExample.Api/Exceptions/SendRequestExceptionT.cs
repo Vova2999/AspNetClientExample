@@ -11,8 +11,9 @@ public class SendRequestException<TResponseData> : SendRequestException
         string? content,
         HttpStatusCode statusCode,
         ILookup<string?, string?> headers,
-        TResponseData? responseData)
-        : base(uri, content, statusCode, headers)
+        TResponseData? responseData,
+        Exception? innerException)
+        : base(uri, content, statusCode, headers, innerException)
     {
         ResponseData = responseData;
     }

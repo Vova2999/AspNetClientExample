@@ -10,261 +10,261 @@ namespace AspNetClientExample.Menus;
 
 public static class EditDataMenu
 {
-	[StaticConsoleMenuCommand("Добавить Department")]
-	public static async Task AddDepartment()
-	{
-		var departmentsClient = Locator.Current.Locate<IDepartmentsClient>();
+    [StaticConsoleMenuCommand("Добавить Department")]
+    public static async Task AddDepartment()
+    {
+        var departmentsClient = Locator.Current.Locate<IDepartmentsClient>();
 
-		var name = await ConsoleReadUniqueDepartmentName(departmentsClient);
+        var name = await ConsoleReadUniqueDepartmentName(departmentsClient);
 
-		Console.WriteLine("Введите Building");
-		var building = ConsoleReadHelper.ReadInt(" => ", 1, 5);
+        Console.WriteLine("Введите Building");
+        var building = ConsoleReadHelper.ReadInt(" => ", 1, 5);
 
-		Console.WriteLine("Введите Financing");
-		var financing = ConsoleReadHelper.ReadInt(" => ", 0);
+        Console.WriteLine("Введите Financing");
+        var financing = ConsoleReadHelper.ReadInt(" => ", 0);
 
-		Console.WriteLine();
-		Console.WriteLine("Введенные данные:");
-		Console.WriteLine($"Name: {name}");
-		Console.WriteLine($"Building: {building}");
-		Console.WriteLine($"Financing: {financing}");
+        Console.WriteLine();
+        Console.WriteLine("Введенные данные:");
+        Console.WriteLine($"Name: {name}");
+        Console.WriteLine($"Building: {building}");
+        Console.WriteLine($"Financing: {financing}");
 
-		Console.WriteLine();
-		Console.Write("Продолжить сохранение? y/n => ");
-		var answer = Console.ReadLine();
-		if (answer != "y")
-			return;
+        Console.WriteLine();
+        Console.Write("Продолжить сохранение? y/n => ");
+        var answer = Console.ReadLine();
+        if (answer != "y")
+            return;
 
-		await departmentsClient.CreateAsync(
-			new DepartmentDto
-			{
-				Name = name,
-				Building = building,
-				Financing = financing
-			});
-	}
-
-	[StaticConsoleMenuCommand("Изменить Department")]
-	public static async Task EditDepartment()
-	{
-		var departmentsClient = Locator.Current.Locate<IDepartmentsClient>();
-
-		var departments = await departmentsClient.GetAsync();
-
-		ConsoleMenuHelper.PrintCommands(departments.Select(department => department.Name));
-		var selector = ConsoleReadHelper.ReadInt(" => ", 0, departments.Length);
-		if (selector == 0)
-			return;
-
-		var editingDepartment = departments[selector - 1];
-		var name = await ConsoleReadUniqueDepartmentName(departmentsClient, editingDepartment);
-
-		Console.WriteLine("Введите Building");
-		var building = ConsoleReadHelper.ReadInt(" => ", 1, 5);
-
-		Console.WriteLine("Введите Financing");
-		var financing = ConsoleReadHelper.ReadInt(" => ", 0);
-
-		Console.WriteLine();
-		Console.WriteLine("Введенные данные:");
-		Console.WriteLine($"Name: {name}");
-		Console.WriteLine($"Building: {building}");
-		Console.WriteLine($"Financing: {financing}");
-
-		Console.WriteLine();
-		Console.Write("Продолжить сохранение? y/n => ");
-		var answer = Console.ReadLine();
-		if (answer != "y")
-			return;
-
-		await departmentsClient.UpdateAsync(
-			editingDepartment.Id,
+        await departmentsClient.CreateAsync(
             new DepartmentDto
-			{
-				Name = name,
-				Building = building,
-				Financing = financing
-			});
-	}
+            {
+                Name = name,
+                Building = building,
+                Financing = financing
+            });
+    }
 
-	[StaticConsoleMenuCommand("Удалить Department")]
-	public static async Task DeleteDepartment()
-	{
-		var departmentsClient = Locator.Current.Locate<IDepartmentsClient>();
+    [StaticConsoleMenuCommand("Изменить Department")]
+    public static async Task EditDepartment()
+    {
+        var departmentsClient = Locator.Current.Locate<IDepartmentsClient>();
 
-		var departments = await departmentsClient.GetAsync();
+        var departments = await departmentsClient.GetAsync();
 
-		ConsoleMenuHelper.PrintCommands(departments.Select(department => department.Name));
-		var selector = ConsoleReadHelper.ReadInt(" => ", 0, departments.Length);
-		if (selector == 0)
-			return;
+        ConsoleMenuHelper.PrintCommands(departments.Select(department => department.Name));
+        var selector = ConsoleReadHelper.ReadInt(" => ", 0, departments.Length);
+        if (selector == 0)
+            return;
 
-		Console.WriteLine();
-		Console.WriteLine("Продолжить удаление? y/n => ");
-		var answer = Console.ReadLine();
-		if (answer != "y")
-			return;
+        var editingDepartment = departments[selector - 1];
+        var name = await ConsoleReadUniqueDepartmentName(departmentsClient, editingDepartment);
 
-		await departmentsClient.DeleteAsync(departments[selector - 1].Id);
-	}
+        Console.WriteLine("Введите Building");
+        var building = ConsoleReadHelper.ReadInt(" => ", 1, 5);
 
-	[StaticConsoleMenuCommand("Добавить Ward")]
-	public static async Task AddWard()
-	{
-		var wardsClient = Locator.Current.Locate<IWardsClient>();
-		var departmentsClient = Locator.Current.Locate<IDepartmentsClient>();
+        Console.WriteLine("Введите Financing");
+        var financing = ConsoleReadHelper.ReadInt(" => ", 0);
 
-		var departments = await departmentsClient.GetAsync();
+        Console.WriteLine();
+        Console.WriteLine("Введенные данные:");
+        Console.WriteLine($"Name: {name}");
+        Console.WriteLine($"Building: {building}");
+        Console.WriteLine($"Financing: {financing}");
 
-		var name = await ConsoleReadUniqueWardName(wardsClient);
+        Console.WriteLine();
+        Console.Write("Продолжить сохранение? y/n => ");
+        var answer = Console.ReadLine();
+        if (answer != "y")
+            return;
 
-		Console.WriteLine("Введите Places");
-		var places = ConsoleReadHelper.ReadInt(" => ", 1);
+        await departmentsClient.UpdateAsync(
+            editingDepartment.Id,
+            new DepartmentDto
+            {
+                Name = name,
+                Building = building,
+                Financing = financing
+            });
+    }
 
-		Console.WriteLine("Выберите Department");
-		ConsoleMenuHelper.PrintCommands(departments.Select(department => department.Name), isSkipFirstEmptyLine: true);
-		var selector = ConsoleReadHelper.ReadInt(" => ", 0, departments.Length);
-		if (selector == 0)
-			return;
+    [StaticConsoleMenuCommand("Удалить Department")]
+    public static async Task DeleteDepartment()
+    {
+        var departmentsClient = Locator.Current.Locate<IDepartmentsClient>();
 
-		var department = departments[selector - 1];
+        var departments = await departmentsClient.GetAsync();
 
-		Console.WriteLine();
-		Console.WriteLine("Введенные данные:");
-		Console.WriteLine($"Name: {name}");
-		Console.WriteLine($"Places: {places}");
-		Console.WriteLine($"Department Name: {department.Name}");
+        ConsoleMenuHelper.PrintCommands(departments.Select(department => department.Name));
+        var selector = ConsoleReadHelper.ReadInt(" => ", 0, departments.Length);
+        if (selector == 0)
+            return;
 
-		Console.WriteLine();
-		Console.Write("Продолжить сохранение? y/n => ");
-		var answer = Console.ReadLine();
-		if (answer != "y")
-			return;
+        Console.WriteLine();
+        Console.WriteLine("Продолжить удаление? y/n => ");
+        var answer = Console.ReadLine();
+        if (answer != "y")
+            return;
 
-		await wardsClient.CreateAsync(
-			new WardDto
-			{
-				Name = name,
-				Places = places,
-				DepartmentName = department.Name
-			});
-	}
+        await departmentsClient.DeleteAsync(departments[selector - 1].Id);
+    }
 
-	[StaticConsoleMenuCommand("Изменить Ward")]
-	public static async Task EditWard()
-	{
-		var wardsClient = Locator.Current.Locate<IWardsClient>();
-		var departmentsClient = Locator.Current.Locate<IDepartmentsClient>();
+    [StaticConsoleMenuCommand("Добавить Ward")]
+    public static async Task AddWard()
+    {
+        var wardsClient = Locator.Current.Locate<IWardsClient>();
+        var departmentsClient = Locator.Current.Locate<IDepartmentsClient>();
 
-		var wards = await wardsClient.GetAsync();
+        var departments = await departmentsClient.GetAsync();
 
-		ConsoleMenuHelper.PrintCommands(wards.Select(department => department.Name));
-		var selector = ConsoleReadHelper.ReadInt(" => ", 0, wards.Length);
-		if (selector == 0)
-			return;
+        var name = await ConsoleReadUniqueWardName(wardsClient);
 
-		var departments = await departmentsClient.GetAsync();
+        Console.WriteLine("Введите Places");
+        var places = ConsoleReadHelper.ReadInt(" => ", 1);
 
-		var editingWard = wards[selector - 1];
-		var name = await ConsoleReadUniqueWardName(wardsClient, editingWard);
+        Console.WriteLine("Выберите Department");
+        ConsoleMenuHelper.PrintCommands(departments.Select(department => department.Name), isSkipFirstEmptyLine: true);
+        var selector = ConsoleReadHelper.ReadInt(" => ", 0, departments.Length);
+        if (selector == 0)
+            return;
 
-		Console.WriteLine("Введите Places");
-		var places = ConsoleReadHelper.ReadInt(" => ", 1);
+        var department = departments[selector - 1];
 
-		Console.WriteLine("Выберите Department");
-		ConsoleMenuHelper.PrintCommands(departments.Select(department => department.Name), isSkipFirstEmptyLine: true);
-		var selectorDepartment = ConsoleReadHelper.ReadInt(" => ", 0, departments.Length);
-		if (selectorDepartment == 0)
-			return;
+        Console.WriteLine();
+        Console.WriteLine("Введенные данные:");
+        Console.WriteLine($"Name: {name}");
+        Console.WriteLine($"Places: {places}");
+        Console.WriteLine($"Department Name: {department.Name}");
 
-		var department = departments[selectorDepartment - 1];
+        Console.WriteLine();
+        Console.Write("Продолжить сохранение? y/n => ");
+        var answer = Console.ReadLine();
+        if (answer != "y")
+            return;
 
-		Console.WriteLine();
-		Console.WriteLine("Введенные данные:");
-		Console.WriteLine($"Name: {name}");
-		Console.WriteLine($"Places: {places}");
-		Console.WriteLine($"Department Name: {department.Name}");
+        await wardsClient.CreateAsync(
+            new WardDto
+            {
+                Name = name,
+                Places = places,
+                DepartmentName = department.Name
+            });
+    }
 
-		Console.WriteLine();
-		Console.Write("Продолжить сохранение? y/n => ");
-		var answer = Console.ReadLine();
-		if (answer != "y")
-			return;
+    [StaticConsoleMenuCommand("Изменить Ward")]
+    public static async Task EditWard()
+    {
+        var wardsClient = Locator.Current.Locate<IWardsClient>();
+        var departmentsClient = Locator.Current.Locate<IDepartmentsClient>();
 
-		await wardsClient.UpdateAsync(
-			editingWard.Id,
-			new WardDto
-			{
-				Name = name,
-				Places = places,
-				DepartmentName = department.Name
-			});
-	}
+        var wards = await wardsClient.GetAsync();
 
-	[StaticConsoleMenuCommand("Удалить Ward")]
-	public static async Task DeleteWard()
-	{
-		var wardsClient = Locator.Current.Locate<IWardsClient>();
+        ConsoleMenuHelper.PrintCommands(wards.Select(department => department.Name));
+        var selector = ConsoleReadHelper.ReadInt(" => ", 0, wards.Length);
+        if (selector == 0)
+            return;
 
-		var wards = await wardsClient.GetAsync();
+        var departments = await departmentsClient.GetAsync();
 
-		ConsoleMenuHelper.PrintCommands(wards.Select(department => department.Name));
-		var selector = ConsoleReadHelper.ReadInt(" => ", 0, wards.Length);
-		if (selector == 0)
-			return;
+        var editingWard = wards[selector - 1];
+        var name = await ConsoleReadUniqueWardName(wardsClient, editingWard);
 
-		Console.WriteLine();
-		Console.WriteLine("Продолжить удаление? y/n => ");
-		var answer = Console.ReadLine();
-		if (answer != "y")
-			return;
+        Console.WriteLine("Введите Places");
+        var places = ConsoleReadHelper.ReadInt(" => ", 1);
 
-		await wardsClient.DeleteAsync(wards[selector - 1].Id);
-	}
+        Console.WriteLine("Выберите Department");
+        ConsoleMenuHelper.PrintCommands(departments.Select(department => department.Name), isSkipFirstEmptyLine: true);
+        var selectorDepartment = ConsoleReadHelper.ReadInt(" => ", 0, departments.Length);
+        if (selectorDepartment == 0)
+            return;
 
-	private static async Task<string> ConsoleReadUniqueDepartmentName(
-		IDepartmentsClient departmentsClient,
-		DepartmentDto? currentDepartment = null)
-	{
-		Console.WriteLine("Введите Name");
+        var department = departments[selectorDepartment - 1];
 
-		while (true)
-		{
-			var name = ConsoleReadHelper.ReadString(" => ");
+        Console.WriteLine();
+        Console.WriteLine("Введенные данные:");
+        Console.WriteLine($"Name: {name}");
+        Console.WriteLine($"Places: {places}");
+        Console.WriteLine($"Department Name: {department.Name}");
 
-			var departments = await departmentsClient.GetAsync(new GetDepartmentsRequest { Names = new[] { name } });
+        Console.WriteLine();
+        Console.Write("Продолжить сохранение? y/n => ");
+        var answer = Console.ReadLine();
+        if (answer != "y")
+            return;
 
-			var isExists = currentDepartment == null
-				? departments.Any()
-				: departments.Any(department => department.Id != currentDepartment.Id);
+        await wardsClient.UpdateAsync(
+            editingWard.Id,
+            new WardDto
+            {
+                Name = name,
+                Places = places,
+                DepartmentName = department.Name
+            });
+    }
 
-			if (!isExists)
-				return name;
+    [StaticConsoleMenuCommand("Удалить Ward")]
+    public static async Task DeleteWard()
+    {
+        var wardsClient = Locator.Current.Locate<IWardsClient>();
 
-			Console.WriteLine("Вы ввели не уникальное значение");
-		}
-	}
+        var wards = await wardsClient.GetAsync();
 
-	private static async Task<string> ConsoleReadUniqueWardName(
-		IWardsClient wardsClient,
-		WardDto? currentWard = null)
-	{
-		Console.WriteLine("Введите Name");
+        ConsoleMenuHelper.PrintCommands(wards.Select(department => department.Name));
+        var selector = ConsoleReadHelper.ReadInt(" => ", 0, wards.Length);
+        if (selector == 0)
+            return;
 
-		while (true)
-		{
-			var name = ConsoleReadHelper.ReadString(" => ");
+        Console.WriteLine();
+        Console.WriteLine("Продолжить удаление? y/n => ");
+        var answer = Console.ReadLine();
+        if (answer != "y")
+            return;
 
-			var wards = await wardsClient.GetAsync(new GetWardsRequest { Names = new[] { name } });
+        await wardsClient.DeleteAsync(wards[selector - 1].Id);
+    }
 
-            var isExists = currentWard == null
-				? wards.Any()
-				: wards.Any(ward => ward.Id != currentWard.Id);
+    private static async Task<string> ConsoleReadUniqueDepartmentName(
+        IDepartmentsClient departmentsClient,
+        DepartmentDto? currentDepartment = null)
+    {
+        Console.WriteLine("Введите Name");
+
+        while (true)
+        {
+            var name = ConsoleReadHelper.ReadString(" => ");
+
+            var departments = await departmentsClient.GetAsync(new GetDepartmentsRequest { Names = new[] { name } });
+
+            var isExists = currentDepartment == null
+                ? departments.Any()
+                : departments.Any(department => department.Id != currentDepartment.Id);
 
             if (!isExists)
-				return name;
+                return name;
 
-			Console.WriteLine("Вы ввели не уникальное значение");
-		}
-	}
+            Console.WriteLine("Вы ввели не уникальное значение");
+        }
+    }
+
+    private static async Task<string> ConsoleReadUniqueWardName(
+        IWardsClient wardsClient,
+        WardDto? currentWard = null)
+    {
+        Console.WriteLine("Введите Name");
+
+        while (true)
+        {
+            var name = ConsoleReadHelper.ReadString(" => ");
+
+            var wards = await wardsClient.GetAsync(new GetWardsRequest { Names = new[] { name } });
+
+            var isExists = currentWard == null
+                ? wards.Any()
+                : wards.Any(ward => ward.Id != currentWard.Id);
+
+            if (!isExists)
+                return name;
+
+            Console.WriteLine("Вы ввели не уникальное значение");
+        }
+    }
 }

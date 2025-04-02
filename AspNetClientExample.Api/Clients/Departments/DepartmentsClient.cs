@@ -1,5 +1,6 @@
 ﻿using AspNetClientExample.Api.Clients.Departments.Requests;
 using AspNetClientExample.Api.Extensions;
+using AspNetClientExample.Api.Token;
 using AspNetClientExample.Domain.Dtos;
 using RestSharp;
 
@@ -7,77 +8,80 @@ namespace AspNetClientExample.Api.Clients.Departments;
 
 public class DepartmentsClient : HttpClientBase, IDepartmentsClient
 {
-    public DepartmentsClient(string address, TimeSpan timeout)
+    private readonly ITokenProvider _tokenProvider;
+
+    public DepartmentsClient(ITokenProvider tokenProvider, string address, TimeSpan timeout)
         : base(address, timeout)
     {
+        _tokenProvider = tokenProvider;
     }
 
-    public Task<DepartmentDto> GetAsync(
+    public async Task<DepartmentDto> GetAsync(
         int id,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<DepartmentDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<DepartmentDto>(
             Method.Get,
-            $"/departments/{id}",
+            $"api/departments/{id}",
             token,
             cancellationToken);
     }
 
-    public Task<DepartmentDto[]> GetAsync(
+    public async Task<DepartmentDto[]> GetAsync(
         GetDepartmentsRequest? request = null,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<DepartmentDto[]>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<DepartmentDto[]>(
             Method.Get,
-            "/departments",
+            "api/departments",
             token,
             restRequest => restRequest
-                .AddQueryParametersIfNotNull("building", request?.Buildings)
+                .AddQueryParametersIfNotNull("buildings", request?.Buildings)
                 .AddQueryParameterIfNotNull("financingFrom", request?.FinancingFrom)
                 .AddQueryParameterIfNotNull("financingTo", request?.FinancingTo)
-                .AddQueryParametersIfNotNull("name", request?.Names),
+                .AddQueryParametersIfNotNull("names", request?.Names),
             cancellationToken);
     }
 
-    public Task<DepartmentDto> CreateAsync(
+    public async Task<DepartmentDto> CreateAsync(
         DepartmentDto department,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<DepartmentDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<DepartmentDto>(
             Method.Post,
-            "/departments",
+            "api/departments",
             token,
             restRequest => restRequest
                 .AddBody(department),
             cancellationToken);
     }
 
-    public Task<DepartmentDto> UpdateAsync(
+    public async Task<DepartmentDto> UpdateAsync(
         int id,
         DepartmentDto department,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<DepartmentDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<DepartmentDto>(
             Method.Put,
-            $"/departments/{id}",
+            $"api/departments/{id}",
             token,
             restRequest => restRequest
                 .AddBody(department),
             cancellationToken);
     }
 
-    public Task DeleteAsync(
+    public async Task DeleteAsync(
         int id,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync(
+        var token = await _tokenProvider.GetTokenAsync();
+        await SendRequestAsync(
             Method.Delete,
-            $"/departments/{id}",
+            $"api/departments/{id}",
             token,
             cancellationToken);
     }

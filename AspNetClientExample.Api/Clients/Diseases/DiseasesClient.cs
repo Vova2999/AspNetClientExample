@@ -1,5 +1,6 @@
 ﻿using AspNetClientExample.Api.Clients.Diseases.Requests;
 using AspNetClientExample.Api.Extensions;
+using AspNetClientExample.Api.Token;
 using AspNetClientExample.Domain.Dtos;
 using RestSharp;
 
@@ -7,72 +8,75 @@ namespace AspNetClientExample.Api.Clients.Diseases;
 
 public class DiseasesClient : HttpClientBase, IDiseasesClient
 {
-    public DiseasesClient(string address, TimeSpan timeout)
+    private readonly ITokenProvider _tokenProvider;
+
+    public DiseasesClient(ITokenProvider tokenProvider, string address, TimeSpan timeout)
         : base(address, timeout)
     {
+        _tokenProvider = tokenProvider;
     }
 
-    public Task<DiseaseDto> GetAsync(
+    public async Task<DiseaseDto> GetAsync(
         int id,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<DiseaseDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<DiseaseDto>(
             Method.Get,
-            $"/diseases/{id}",
+            $"api/diseases/{id}",
             token,
             cancellationToken);
     }
 
-    public Task<DiseaseDto[]> GetAsync(
+    public async Task<DiseaseDto[]> GetAsync(
         GetDiseasesRequest? request = null,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<DiseaseDto[]>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<DiseaseDto[]>(
             Method.Get,
-            "/diseases",
+            "api/diseases",
             token,
             restRequest => restRequest
-                .AddQueryParametersIfNotNull("name", request?.Names),
+                .AddQueryParametersIfNotNull("names", request?.Names),
             cancellationToken);
     }
 
-    public Task<DiseaseDto> CreateAsync(
+    public async Task<DiseaseDto> CreateAsync(
         DiseaseDto disease,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<DiseaseDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<DiseaseDto>(
             Method.Post,
-            "/diseases",
+            "api/diseases",
             token,
             restRequest => restRequest
                 .AddBody(disease),
             cancellationToken);
     }
 
-    public Task<DiseaseDto> UpdateAsync(
+    public async Task<DiseaseDto> UpdateAsync(
         int id,
         DiseaseDto disease,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<DiseaseDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<DiseaseDto>(
             Method.Put,
-            $"/diseases/{id}",
+            $"api/diseases/{id}",
             token,
             restRequest => restRequest
                 .AddBody(disease),
             cancellationToken);
     }
 
-    public Task DeleteAsync(
+    public async Task DeleteAsync(
         int id,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync(
+        var token = await _tokenProvider.GetTokenAsync();
+        await SendRequestAsync(
             Method.Delete,
             $"/diseases/{id}",
             token,

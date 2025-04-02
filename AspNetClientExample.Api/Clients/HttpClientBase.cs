@@ -1,7 +1,10 @@
-﻿using AspNetClientExample.Api.Exceptions;
+﻿using System.Text.Json;
+using AspNetClientExample.Api.Converters;
+using AspNetClientExample.Api.Exceptions;
 using AspNetClientExample.Common.Extensions;
 using RestSharp;
 using RestSharp.Authenticators;
+using RestSharp.Serializers.Json;
 
 namespace AspNetClientExample.Api.Clients;
 
@@ -11,7 +14,15 @@ public abstract class HttpClientBase : IDisposable
 
     protected HttpClientBase(string address, TimeSpan timeout)
     {
-        _client = new RestClient(address, options => options.Timeout = timeout);
+        _client = new RestClient(address,
+            options => options.Timeout = timeout,
+            configureSerialization: config =>
+                config.UseSystemTextJson(
+                    new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                        Converters = { new DateOnlyCurrentCultureJsonConverter() }
+                    }));
     }
 
     protected Task<byte[]> SendRequestAsync(
@@ -40,7 +51,7 @@ public abstract class HttpClientBase : IDisposable
         return SendRequestAsync(method, path, null, setRequestParams, cancellationToken);
     }
 
-    protected virtual async Task<byte[]> SendRequestAsync(
+    protected async Task<byte[]> SendRequestAsync(
         Method method,
         string path,
         string? token,
@@ -56,7 +67,7 @@ public abstract class HttpClientBase : IDisposable
             return response.RawBytes;
 
         var headers = response.Headers.EmptyIfNull().ToLookup(h => h.Name, h => h.Value);
-        throw new SendRequestException(response.ResponseUri, response.Content, response.StatusCode, headers!);
+        throw new SendRequestException(response.ResponseUri, response.Content, response.StatusCode, headers!, response.ErrorException);
     }
 
     protected Task<TResult> SendRequestAsync<TResult>(
@@ -85,7 +96,7 @@ public abstract class HttpClientBase : IDisposable
         return SendRequestAsync<TResult>(method, path, null, setRequestParams, cancellationToken);
     }
 
-    protected virtual async Task<TResult> SendRequestAsync<TResult>(
+    protected async Task<TResult> SendRequestAsync<TResult>(
         Method method,
         string path,
         string? token,
@@ -101,7 +112,7 @@ public abstract class HttpClientBase : IDisposable
             return response.Data;
 
         var headers = response.Headers.EmptyIfNull().ToLookup(h => h.Name, h => h.Value);
-        throw new SendRequestException<TResult>(response.ResponseUri, response.Content, response.StatusCode, headers!, response.Data);
+        throw new SendRequestException<TResult>(response.ResponseUri, response.Content, response.StatusCode, headers!, response.Data, response.ErrorException);
     }
 
     private static RestRequest CreateRequest(Method method, string resource, string? token, Action<RestRequest>? setRequestParams)

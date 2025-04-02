@@ -1,5 +1,6 @@
 ﻿using AspNetClientExample.Api.Clients.Wards.Requests;
 using AspNetClientExample.Api.Extensions;
+using AspNetClientExample.Api.Token;
 using AspNetClientExample.Domain.Dtos;
 using RestSharp;
 
@@ -7,77 +8,80 @@ namespace AspNetClientExample.Api.Clients.Wards;
 
 public class WardsClient : HttpClientBase, IWardsClient
 {
-    public WardsClient(string address, TimeSpan timeout)
+    private readonly ITokenProvider _tokenProvider;
+
+    public WardsClient(ITokenProvider tokenProvider, string address, TimeSpan timeout)
         : base(address, timeout)
     {
+        _tokenProvider = tokenProvider;
     }
 
-    public Task<WardDto> GetAsync(
+    public async Task<WardDto> GetAsync(
         int id,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<WardDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<WardDto>(
             Method.Get,
-            $"/wards/{id}",
+            $"api/wards/{id}",
             token,
             cancellationToken);
     }
 
-    public Task<WardDto[]> GetAsync(
+    public async Task<WardDto[]> GetAsync(
         GetWardsRequest? request = null,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<WardDto[]>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<WardDto[]>(
             Method.Get,
-            "/wards",
+            "api/wards",
             token,
             restRequest => restRequest
-                .AddQueryParametersIfNotNull("name", request?.Names)
+                .AddQueryParametersIfNotNull("names", request?.Names)
                 .AddQueryParameterIfNotNull("placesFrom", request?.PlacesFrom)
                 .AddQueryParameterIfNotNull("placesTo", request?.PlacesTo)
-                .AddQueryParametersIfNotNull("departmentName", request?.DepartmentNames),
+                .AddQueryParametersIfNotNull("departmentNames", request?.DepartmentNames),
             cancellationToken);
     }
 
-    public Task<WardDto> CreateAsync(
+    public async Task<WardDto> CreateAsync(
         WardDto ward,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<WardDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<WardDto>(
             Method.Post,
-            "/wards",
+            "api/wards",
             token,
             restRequest => restRequest
                 .AddBody(ward),
             cancellationToken);
     }
 
-    public Task<WardDto> UpdateAsync(
+    public async Task<WardDto> UpdateAsync(
         int id,
         WardDto ward,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<WardDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<WardDto>(
             Method.Put,
-            $"/wards/{id}",
+            $"api/wards/{id}",
             token,
             restRequest => restRequest
                 .AddBody(ward),
             cancellationToken);
     }
 
-    public Task DeleteAsync(
+    public async Task DeleteAsync(
         int id,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync(
+        var token = await _tokenProvider.GetTokenAsync();
+        await SendRequestAsync(
             Method.Delete,
-            $"/wards/{id}",
+            $"api/wards/{id}",
             token,
             cancellationToken);
     }

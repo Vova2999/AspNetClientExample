@@ -1,5 +1,6 @@
 ﻿using AspNetClientExample.Api.Clients.Professors.Requests;
 using AspNetClientExample.Api.Extensions;
+using AspNetClientExample.Api.Token;
 using AspNetClientExample.Domain.Dtos;
 using RestSharp;
 
@@ -7,74 +8,77 @@ namespace AspNetClientExample.Api.Clients.Professors;
 
 public class ProfessorsClient : HttpClientBase, IProfessorsClient
 {
-    public ProfessorsClient(string address, TimeSpan timeout)
+    private readonly ITokenProvider _tokenProvider;
+
+    public ProfessorsClient(ITokenProvider tokenProvider, string address, TimeSpan timeout)
         : base(address, timeout)
     {
+        _tokenProvider = tokenProvider;
     }
 
-    public Task<ProfessorDto> GetAsync(
+    public async Task<ProfessorDto> GetAsync(
         int id,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<ProfessorDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<ProfessorDto>(
             Method.Get,
-            $"/professors/{id}",
+            $"api/professors/{id}",
             token,
             cancellationToken);
     }
 
-    public Task<ProfessorDto[]> GetAsync(
+    public async Task<ProfessorDto[]> GetAsync(
         GetProfessorsRequest? request = null,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<ProfessorDto[]>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<ProfessorDto[]>(
             Method.Get,
-            "/professors",
+            "api/professors",
             token,
             restRequest => restRequest
-                .AddQueryParametersIfNotNull("doctorName", request?.DoctorNames),
+                .AddQueryParametersIfNotNull("doctorNames", request?.DoctorNames),
             cancellationToken);
     }
 
-    public Task<ProfessorDto> CreateAsync(
+    public async Task<ProfessorDto> CreateAsync(
         ProfessorDto professor,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<ProfessorDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<ProfessorDto>(
             Method.Post,
-            "/professors",
+            "api/professors",
             token,
             restRequest => restRequest
                 .AddBody(professor),
             cancellationToken);
     }
 
-    public Task<ProfessorDto> UpdateAsync(
+    public async Task<ProfessorDto> UpdateAsync(
         int id,
         ProfessorDto professor,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync<ProfessorDto>(
+        var token = await _tokenProvider.GetTokenAsync();
+        return await SendRequestAsync<ProfessorDto>(
             Method.Put,
-            $"/professors/{id}",
+            $"api/professors/{id}",
             token,
             restRequest => restRequest
                 .AddBody(professor),
             cancellationToken);
     }
 
-    public Task DeleteAsync(
+    public async Task DeleteAsync(
         int id,
-        string? token = default,
         CancellationToken cancellationToken = default)
     {
-        return SendRequestAsync(
+        var token = await _tokenProvider.GetTokenAsync();
+        await SendRequestAsync(
             Method.Delete,
-            $"/professors/{id}",
+            $"api/professors/{id}",
             token,
             cancellationToken);
     }

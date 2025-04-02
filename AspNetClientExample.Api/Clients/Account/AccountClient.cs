@@ -35,21 +35,25 @@ public class AccountClient : HttpClientBase, IAccountClient
     }
 
     public Task<TokenDto> RefreshTokenAsync(
+        string token,
         CancellationToken cancellationToken = default)
     {
         return SendRequestAsync<TokenDto>(
             Method.Post,
             "api/account/refresh",
+            token,
             cancellationToken);
     }
 
     public Task ChangePasswordAsync(
+        string token,
         ChangePasswordDto changePassword,
         CancellationToken cancellationToken = default)
     {
         return SendRequestAsync(
             Method.Post,
             "api/account/change-password",
+            token,
             request => request
                 .AddBody(changePassword),
             cancellationToken);
