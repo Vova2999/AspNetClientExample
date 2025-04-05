@@ -16,73 +16,72 @@ public class DoctorsClient : HttpClientBase, IDoctorsClient
         _tokenProvider = tokenProvider;
     }
 
-    public async Task<DoctorDto> GetAsync(
+    public Task<DoctorDto> GetAsync(
         int id,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<DoctorDto>(
-            Method.Get,
-            $"api/doctors/{id}",
-            token,
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<DoctorDto>(
+                Method.Get,
+                $"api/doctors/{id}",
+                token,
+                cancellationToken));
     }
 
-    public async Task<DoctorDto[]> GetAsync(
+    public Task<DoctorDto[]> GetAsync(
         GetDoctorsRequest? request = null,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<DoctorDto[]>(
-            Method.Get,
-            "api/doctors",
-            token,
-            restRequest => restRequest
-                .AddQueryParametersIfNotNull("names", request?.Names)
-                .AddQueryParameterIfNotNull("salaryFrom", request?.SalaryFrom)
-                .AddQueryParameterIfNotNull("salaryTo", request?.SalaryTo)
-                .AddQueryParametersIfNotNull("surnames", request?.Surnames),
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<DoctorDto[]>(
+                Method.Get,
+                "api/doctors",
+                token,
+                restRequest => restRequest
+                    .AddQueryParametersIfNotNull("names", request?.Names)
+                    .AddQueryParameterIfNotNull("salaryFrom", request?.SalaryFrom)
+                    .AddQueryParameterIfNotNull("salaryTo", request?.SalaryTo)
+                    .AddQueryParametersIfNotNull("surnames", request?.Surnames),
+                cancellationToken));
     }
 
-    public async Task<DoctorDto> CreateAsync(
+    public Task<DoctorDto> CreateAsync(
         DoctorDto doctor,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<DoctorDto>(
-            Method.Post,
-            "api/doctors",
-            token,
-            restRequest => restRequest
-                .AddBody(doctor),
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<DoctorDto>(
+                Method.Post,
+                "api/doctors",
+                token,
+                restRequest => restRequest
+                    .AddBody(doctor),
+                cancellationToken));
     }
 
-    public async Task<DoctorDto> UpdateAsync(
+    public Task<DoctorDto> UpdateAsync(
         int id,
         DoctorDto doctor,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<DoctorDto>(
-            Method.Put,
-            $"api/doctors/{id}",
-            token,
-            restRequest => restRequest
-                .AddBody(doctor),
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<DoctorDto>(
+                Method.Put,
+                $"api/doctors/{id}",
+                token,
+                restRequest => restRequest
+                    .AddBody(doctor),
+                cancellationToken));
     }
 
-    public async Task DeleteAsync(
+    public Task DeleteAsync(
         int id,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        await SendRequestAsync(
+        return _tokenProvider.ExecuteWithToken(token => SendRequestAsync(
             Method.Delete,
             $"api/doctors/{id}",
             token,
-            cancellationToken);
+            cancellationToken));
     }
 }

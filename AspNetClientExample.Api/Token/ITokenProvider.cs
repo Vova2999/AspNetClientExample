@@ -6,5 +6,5 @@ public interface ITokenProvider
 {
     Task LoginAsync(LoginDto login);
 
-    Task<string> GetTokenAsync();
+    Task<TResult> ExecuteWithToken<TResult>(Func<string, Task<TResult>> action);
 }

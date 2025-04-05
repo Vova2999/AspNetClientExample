@@ -22,6 +22,7 @@ public static class TasksMenu
         var wardsClient = Locator.Current.Locate<IWardsClient>();
         var departmentClient = Locator.Current.Locate<IDepartmentsClient>();
 
+        var departments2 = departmentClient.GetAsync(new GetDepartmentsRequest { Buildings = new[] { 5 } });
         var departments = await departmentClient.GetAsync(new GetDepartmentsRequest { Buildings = new[] { 5 } });
         var wards = await wardsClient.GetAsync(new GetWardsRequest { PlacesFrom = 5, DepartmentNames = departments.Select(department => department.Name).ToArray() });
 

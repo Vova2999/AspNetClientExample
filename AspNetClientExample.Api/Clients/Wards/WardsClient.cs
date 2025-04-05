@@ -16,73 +16,73 @@ public class WardsClient : HttpClientBase, IWardsClient
         _tokenProvider = tokenProvider;
     }
 
-    public async Task<WardDto> GetAsync(
+    public Task<WardDto> GetAsync(
         int id,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<WardDto>(
-            Method.Get,
-            $"api/wards/{id}",
-            token,
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<WardDto>(
+                Method.Get,
+                $"api/wards/{id}",
+                token,
+                cancellationToken));
     }
 
-    public async Task<WardDto[]> GetAsync(
+    public Task<WardDto[]> GetAsync(
         GetWardsRequest? request = null,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<WardDto[]>(
-            Method.Get,
-            "api/wards",
-            token,
-            restRequest => restRequest
-                .AddQueryParametersIfNotNull("names", request?.Names)
-                .AddQueryParameterIfNotNull("placesFrom", request?.PlacesFrom)
-                .AddQueryParameterIfNotNull("placesTo", request?.PlacesTo)
-                .AddQueryParametersIfNotNull("departmentNames", request?.DepartmentNames),
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<WardDto[]>(
+                Method.Get,
+                "api/wards",
+                token,
+                restRequest => restRequest
+                    .AddQueryParametersIfNotNull("names", request?.Names)
+                    .AddQueryParameterIfNotNull("placesFrom", request?.PlacesFrom)
+                    .AddQueryParameterIfNotNull("placesTo", request?.PlacesTo)
+                    .AddQueryParametersIfNotNull("departmentNames", request?.DepartmentNames),
+                cancellationToken));
     }
 
-    public async Task<WardDto> CreateAsync(
+    public Task<WardDto> CreateAsync(
         WardDto ward,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<WardDto>(
-            Method.Post,
-            "api/wards",
-            token,
-            restRequest => restRequest
-                .AddBody(ward),
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<WardDto>(
+                Method.Post,
+                "api/wards",
+                token,
+                restRequest => restRequest
+                    .AddBody(ward),
+                cancellationToken));
     }
 
-    public async Task<WardDto> UpdateAsync(
+    public Task<WardDto> UpdateAsync(
         int id,
         WardDto ward,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<WardDto>(
-            Method.Put,
-            $"api/wards/{id}",
-            token,
-            restRequest => restRequest
-                .AddBody(ward),
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<WardDto>(
+                Method.Put,
+                $"api/wards/{id}",
+                token,
+                restRequest => restRequest
+                    .AddBody(ward),
+                cancellationToken));
     }
 
-    public async Task DeleteAsync(
+    public Task DeleteAsync(
         int id,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        await SendRequestAsync(
-            Method.Delete,
-            $"api/wards/{id}",
-            token,
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync(
+                Method.Delete,
+                $"api/wards/{id}",
+                token,
+                cancellationToken));
     }
 }

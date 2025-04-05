@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IdentityModel.Tokens.Jwt;
 using AspNetClientExample.Api.Clients.Account;
 using AspNetClientExample.Domain.Dtos;
 using Nito.AsyncEx;
@@ -31,32 +32,34 @@ public class SlidingTokenProvider : ITokenProvider
         _token = token.Token ?? throw new ArgumentNullException(nameof(token.Token), "Token is empty");
     }
 
-    public async Task<string> GetTokenAsync()
+    public async Task<TResult> ExecuteWithToken<TResult>(Func<string, Task<TResult>> action)
     {
-        if (_token == null)
-            throw new InvalidOperationException("You must login before using the token");
-
-        await RefreshTokenIfNeeded();
-        return _token;
+        return await action(await GetTokenAsync());
     }
 
-    private async Task RefreshTokenIfNeeded()
+    private async Task<string> GetTokenAsync()
     {
-        if (!IsNeedRefreshToken())
-            return;
+        var token = _token;
+        if (!IsNeedRefreshToken(token))
+            return token;
 
         using var _ = await _tokenAsyncLock.LockAsync();
 
-        if (!IsNeedRefreshToken())
-            return;
+        if (!IsNeedRefreshToken(_token))
+            return _token;
 
-        var token = await _accountClient.RefreshTokenAsync(_token!);
-        _token = token.Token ?? throw new ArgumentNullException(nameof(token.Token), "Token is empty");
+        var refreshResult = await _accountClient.RefreshTokenAsync(_token);
+        _token = refreshResult.Token ?? throw new ArgumentNullException(nameof(refreshResult.Token), "Token is empty");
+
+        return _token;
     }
 
-    private bool IsNeedRefreshToken()
+    private bool IsNeedRefreshToken([NotNull] string? token)
     {
-        var jwtSecurityToken = _jwtSecurityTokenHandler.ReadJwtToken(_token);
+        if (token == null)
+            throw new InvalidOperationException("You must login before using the token");
+
+        var jwtSecurityToken = _jwtSecurityTokenHandler.ReadJwtToken(token);
 
         var refreshTokenBeforeTicks =
             (jwtSecurityToken.ValidTo - jwtSecurityToken.ValidFrom).Ticks

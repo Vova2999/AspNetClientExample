@@ -16,73 +16,72 @@ public class DepartmentsClient : HttpClientBase, IDepartmentsClient
         _tokenProvider = tokenProvider;
     }
 
-    public async Task<DepartmentDto> GetAsync(
+    public Task<DepartmentDto> GetAsync(
         int id,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<DepartmentDto>(
-            Method.Get,
-            $"api/departments/{id}",
-            token,
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<DepartmentDto>(
+                Method.Get,
+                $"api/departments/{id}",
+                token,
+                cancellationToken));
     }
 
-    public async Task<DepartmentDto[]> GetAsync(
+    public Task<DepartmentDto[]> GetAsync(
         GetDepartmentsRequest? request = null,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<DepartmentDto[]>(
-            Method.Get,
-            "api/departments",
-            token,
-            restRequest => restRequest
-                .AddQueryParametersIfNotNull("buildings", request?.Buildings)
-                .AddQueryParameterIfNotNull("financingFrom", request?.FinancingFrom)
-                .AddQueryParameterIfNotNull("financingTo", request?.FinancingTo)
-                .AddQueryParametersIfNotNull("names", request?.Names),
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<DepartmentDto[]>(
+                Method.Get,
+                "api/departments",
+                token,
+                restRequest => restRequest
+                    .AddQueryParametersIfNotNull("buildings", request?.Buildings)
+                    .AddQueryParameterIfNotNull("financingFrom", request?.FinancingFrom)
+                    .AddQueryParameterIfNotNull("financingTo", request?.FinancingTo)
+                    .AddQueryParametersIfNotNull("names", request?.Names),
+                cancellationToken));
     }
 
-    public async Task<DepartmentDto> CreateAsync(
+    public Task<DepartmentDto> CreateAsync(
         DepartmentDto department,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<DepartmentDto>(
-            Method.Post,
-            "api/departments",
-            token,
-            restRequest => restRequest
-                .AddBody(department),
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<DepartmentDto>(
+                Method.Post,
+                "api/departments",
+                token,
+                restRequest => restRequest
+                    .AddBody(department),
+                cancellationToken));
     }
 
-    public async Task<DepartmentDto> UpdateAsync(
+    public Task<DepartmentDto> UpdateAsync(
         int id,
         DepartmentDto department,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<DepartmentDto>(
-            Method.Put,
-            $"api/departments/{id}",
-            token,
-            restRequest => restRequest
-                .AddBody(department),
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<DepartmentDto>(
+                Method.Put,
+                $"api/departments/{id}",
+                token,
+                restRequest => restRequest
+                    .AddBody(department),
+                cancellationToken));
     }
 
-    public async Task DeleteAsync(
+    public Task DeleteAsync(
         int id,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        await SendRequestAsync(
+        return _tokenProvider.ExecuteWithToken(token => SendRequestAsync(
             Method.Delete,
             $"api/departments/{id}",
             token,
-            cancellationToken);
+            cancellationToken));
     }
 }

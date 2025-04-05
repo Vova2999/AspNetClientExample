@@ -28,6 +28,7 @@ public class Locator : ILocatorService
 
     private static void RegisterDependencies(IExportRegistrationBlock registration)
     {
+        //RegisterSingleton<ITokenProvider, ReLoginTokenProvider>(registration);
         RegisterSingleton<ITokenProvider, SlidingTokenProvider>(registration,
             scope => new SlidingTokenProvider(scope.Locate<IAccountClient>(), Constants.RefreshSlidingTokenBeforeExpirationInPercent));
 

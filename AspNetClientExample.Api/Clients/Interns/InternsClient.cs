@@ -16,70 +16,70 @@ public class InternsClient : HttpClientBase, IInternsClient
         _tokenProvider = tokenProvider;
     }
 
-    public async Task<InternDto> GetAsync(
+    public Task<InternDto> GetAsync(
         int id,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<InternDto>(
-            Method.Get,
-            $"api/interns/{id}",
-            token,
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<InternDto>(
+                Method.Get,
+                $"api/interns/{id}",
+                token,
+                cancellationToken));
     }
 
-    public async Task<InternDto[]> GetAsync(
+    public Task<InternDto[]> GetAsync(
         GetInternsRequest? request = null,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<InternDto[]>(
-            Method.Get,
-            "api/interns",
-            token,
-            restRequest => restRequest
-                .AddQueryParametersIfNotNull("doctorNames", request?.DoctorNames),
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<InternDto[]>(
+                Method.Get,
+                "api/interns",
+                token,
+                restRequest => restRequest
+                    .AddQueryParametersIfNotNull("doctorNames", request?.DoctorNames),
+                cancellationToken));
     }
 
-    public async Task<InternDto> CreateAsync(
+    public Task<InternDto> CreateAsync(
         InternDto intern,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<InternDto>(
-            Method.Post,
-            "api/interns",
-            token,
-            restRequest => restRequest
-                .AddBody(intern),
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<InternDto>(
+                Method.Post,
+                "api/interns",
+                token,
+                restRequest => restRequest
+                    .AddBody(intern),
+                cancellationToken));
     }
 
-    public async Task<InternDto> UpdateAsync(
+    public Task<InternDto> UpdateAsync(
         int id,
         InternDto intern,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        return await SendRequestAsync<InternDto>(
-            Method.Put,
-            $"api/interns/{id}",
-            token,
-            restRequest => restRequest
-                .AddBody(intern),
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<InternDto>(
+                Method.Put,
+                $"api/interns/{id}",
+                token,
+                restRequest => restRequest
+                    .AddBody(intern),
+                cancellationToken));
     }
 
-    public async Task DeleteAsync(
+    public Task DeleteAsync(
         int id,
         CancellationToken cancellationToken = default)
     {
-        var token = await _tokenProvider.GetTokenAsync();
-        await SendRequestAsync(
-            Method.Delete,
-            $"api/interns/{id}",
-            token,
-            cancellationToken);
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync(
+                Method.Delete,
+                $"api/interns/{id}",
+                token,
+                cancellationToken));
     }
 }
